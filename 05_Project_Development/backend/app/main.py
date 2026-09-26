@@ -47,7 +47,7 @@ app.include_router(planner_routes.router)
 app.include_router(history_routes.router)
 app.include_router(page_routes.router)
 
-@app.get("/health", tags=["System"])
+@app.api_route("/health", methods=["GET", "HEAD"], tags=["System"])
 def health_check():
     """Health and readiness check endpoint."""
     return {
@@ -57,4 +57,5 @@ def health_check():
         "environment": settings.ENVIRONMENT,
         "gemini_configured": bool(settings.GEMINI_API_KEY and len(settings.GEMINI_API_KEY) > 5)
     }
+
 

@@ -10,13 +10,14 @@ from ..auth import get_optional_current_user
 router = APIRouter(include_in_schema=False)
 templates = Jinja2Templates(directory=str(settings.TEMPLATES_DIR))
 
-@router.get("/", response_class=HTMLResponse)
+@router.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
 def index_page(request: Request, current_user: Optional[User] = Depends(get_optional_current_user)):
     return templates.TemplateResponse(
         request=request,
         name="index.html",
         context={"user": current_user, "active_tab": "home"}
     )
+
 
 @router.get("/home-planner", response_class=HTMLResponse)
 def home_planner_page(request: Request, current_user: Optional[User] = Depends(get_optional_current_user)):

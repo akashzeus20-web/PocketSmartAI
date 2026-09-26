@@ -17,8 +17,9 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
     ENVIRONMENT: str = "development"
-    APP_HOST: str = "127.0.0.1"
+    APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8000
+
 
     # Security & JWT
     SECRET_KEY: str = "pocketsmart-super-secret-key-change-in-production-2026"
