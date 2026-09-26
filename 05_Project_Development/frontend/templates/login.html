@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Log In — PocketSmart AI{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 60px 20px 80px; max-width: 480px;">
+    <div class="card">
+        <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 8px; text-align: center;">Welcome Back</h2>
+        <p style="color: var(--muted); font-size: 0.95rem; margin-bottom: 24px; text-align: center;">Log in to access your saved budget plans.</p>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" class="form-control" placeholder="Enter your username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">Log In</button>
+        </form>
+
+        <p style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--muted);">
+            Don't have an account yet? <a href="/register" style="color: var(--primary); font-weight: 600;">Sign up free</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("login-form");
+    if (!form) return;
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+
+        try {
+            const res = await fetch("/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.detail || "Authentication failed. Invalid username or password.");
+            }
+
+            const data = await res.json();
+            PocketApp.setToken(data.access_token);
+            PocketApp.setUser(data.user);
+            PocketApp.showToast("Logged in successfully! Redirecting...", "success");
+
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 800);
+        } catch (err) {
+            PocketApp.showToast(err.message, "error");
+        }
+    });
+});
+</script>
+{% endblock %}
+

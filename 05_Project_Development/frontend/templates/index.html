@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}PocketSmart AI — Smart Budget & Purchase Planning{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="container">
+        <h1>Spend Smart with <span>Generative AI</span></h1>
+        <p>PocketSmart AI intelligently optimizes your budget across Home Interiors, Event Celebrations, and Wardrobe-Matching Jewelry using Google Gemini multimodal intelligence.</p>
+        <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
+            <a href="/home-planner" class="btn btn-primary">🛋️ Plan Home Interior</a>
+            <a href="/party-planner" class="btn btn-secondary">🎉 Plan an Event</a>
+            <a href="/jewelry-planner" class="btn btn-secondary">💎 Match Jewelry with Vision</a>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="padding-bottom: 60px;">
+    <div class="card-grid">
+        <!-- Vertical 1: Home Interior -->
+        <div class="card">
+            <span class="badge badge-info" style="margin-bottom:12px;">Vertical 01</span>
+            <h3 class="card-title">Home Interior Planner</h3>
+            <p class="card-desc">Furnish your living space without overspending. Input your budget, room type, and style preferences to receive prioritized furniture, lighting, and decor with sample vendor links.</p>
+            <ul style="margin-left: 20px; margin-bottom: 20px; font-size: 0.9rem; color: var(--slate);">
+                <li>Strict budget ceiling enforcement</li>
+                <li>Balanced furniture, lighting & accent split</li>
+                <li>Clear mock/sample vendor links</li>
+            </ul>
+            <a href="/home-planner" class="btn btn-primary btn-block">Launch Home Planner &rarr;</a>
+        </div>
+
+        <!-- Vertical 2: Party Planner -->
+        <div class="card">
+            <span class="badge badge-info" style="margin-bottom:12px;">Vertical 02</span>
+            <h3 class="card-title">Party & Event Planner</h3>
+            <p class="card-desc">Organize memorable gatherings within a set financial boundary. The engine automatically balances funds across catering, venue, decorations, and entertainment.</p>
+            <ul style="margin-left: 20px; margin-bottom: 20px; font-size: 0.9rem; color: var(--slate);">
+                <li>Per-head economic viability checks</li>
+                <li>Proportional category budget allocations</li>
+                <li>Actionable pre-event preparation checklist</li>
+            </ul>
+            <a href="/party-planner" class="btn btn-primary btn-block">Launch Party Planner &rarr;</a>
+        </div>
+
+        <!-- Vertical 3: Jewelry Planner -->
+        <div class="card">
+            <span class="badge badge-info" style="margin-bottom:12px;">Vertical 03</span>
+            <h3 class="card-title">Jewelry & Vision Planner</h3>
+            <p class="card-desc">Discover coordinating accessories tailored to your attire. Upload an outfit photograph and let Gemini Vision evaluate neckline geometry, color undertones, and metal pairing.</p>
+            <ul style="margin-left: 20px; margin-bottom: 20px; font-size: 0.9rem; color: var(--slate);">
+                <li>Multimodal vision outfit tone extraction</li>
+                <li>Coordinated metal & gemstone curation</li>
+                <li>Earrings, necklaces, cuffs & rings in budget</li>
+            </ul>
+            <a href="/jewelry-planner" class="btn btn-primary btn-block">Launch Jewelry Planner &rarr;</a>
+        </div>
+    </div>
+
+    <!-- Architectural Integrity Section -->
+    <div class="card" style="margin-top: 40px; background: #ffffff;">
+        <h3 class="card-title" style="margin-bottom: 8px;">System Architecture & Resilience</h3>
+        <p class="card-desc" style="margin-bottom: 16px;">PocketSmart AI is engineered with full deterministic fallback mechanisms. If an external AI API key is not supplied or quota is exceeded, the application transparently leverages its built-in market heuristic models so workflows never fail.</p>
+        <div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.85rem;">
+            <div style="background:var(--light-bg); padding:10px 16px; border-radius:var(--radius-sm); border:1px solid var(--border);">
+                <strong>Backend Engine:</strong> Python 3.11 + FastAPI (Async)
+            </div>
+            <div style="background:var(--light-bg); padding:10px 16px; border-radius:var(--radius-sm); border:1px solid var(--border);">
+                <strong>AI Model:</strong> Google Gemini 1.5 Flash (Vision & Text)
+            </div>
+            <div style="background:var(--light-bg); padding:10px 16px; border-radius:var(--radius-sm); border:1px solid var(--border);">
+                <strong>Persistence:</strong> SQLite + SQLAlchemy ORM
+            </div>
+            <div style="background:var(--light-bg); padding:10px 16px; border-radius:var(--radius-sm); border:1px solid var(--border);">
+                <strong>Security:</strong> BCrypt Hashing + JWT Bearer Tokens
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

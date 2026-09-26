@@ -1,0 +1,40 @@
+# Python Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+05_Project_Development/venv/
+
+# Environment Variables & Secrets (CRITICAL)
+.env
+05_Project_Development/.env
+*.env.local
+*.key
+*.pem
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local SQLite Database
+*.db
+*.sqlite
+*.sqlite3
+05_Project_Development/*.db
+05_Project_Development/*.sqlite
+
+# Uploads & Temp Files
+05_Project_Development/frontend/static/uploads/*
+!05_Project_Development/frontend/static/uploads/.gitkeep
+
+# IDEs & OS Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+

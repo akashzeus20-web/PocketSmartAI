@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Recommendation Details — PocketSmart AI{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 40px 20px 80px;">
+    <div style="margin-bottom: 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+        <div>
+            <a href="/history-page" style="color:var(--muted); text-decoration:none; font-size:0.9rem;">&larr; Back to History</a>
+            <h1 id="det-title" style="font-size: 2rem; font-weight: 800; margin-top: 6px;">Loading Details...</h1>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button onclick="window.print()" class="btn btn-secondary btn-sm">🖨️ Print / Save PDF</button>
+            <button id="btn-export-json" class="btn btn-secondary btn-sm">⬇️ Download JSON</button>
+        </div>
+    </div>
+
+    <div id="det-loading" style="text-align:center; padding:50px;">
+        <div class="spinner"></div>
+        <p style="color:var(--muted);">Retrieving stored recommendation record...</p>
+    </div>
+
+    <div id="det-content" style="display:none;">
+        <div class="result-header">
+            <div>
+                <span id="det-badge" class="badge badge-info" style="margin-bottom:8px;">Plan</span>
+                <span id="det-mode" class="badge badge-success">AI Live</span>
+                <p id="det-date" style="color:#cbd5e1; font-size:0.85rem; margin-top:6px;"></p>
+            </div>
+            <div style="display: flex; gap: 24px;">
+                <div class="result-stat">
+                    <span class="label">Ceiling Budget</span>
+                    <span id="det-budget" class="value">$0.00</span>
+                </div>
+                <div class="result-stat">
+                    <span class="label">Total Estimated</span>
+                    <span id="det-spent" class="value">$0.00</span>
+                </div>
+                <div class="result-stat">
+                    <span class="label">Surplus / Savings</span>
+                    <span id="det-remaining" class="value savings">$0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="font-size: 1.3rem; margin-bottom: 16px; color: var(--dark);">Purchasing / Item Breakdown</h3>
+        <div id="det-items-list">
+            <!-- Rendered dynamically -->
+        </div>
+
+        <div id="det-extras" class="card" style="margin-top:24px; border-left:4px solid var(--primary); display:none;">
+            <!-- Design tips / advice / checklist -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const recId = urlParams.get("id");
+
+    if (!recId) {
+        PocketApp.showToast("No recommendation ID provided in URL.", "error");
+        setTimeout(() => window.location.href = "/history-page", 1500);
+        return;
+    }
+
+    try {
+        const token = PocketApp.getToken();
+        const headers = token ? { "Authorization": `Bearer ${token}` } : {};
+
+        // Call the project brief route: /recommendations-details?id=...
+        const res = await fetch(`/recommendations-details?id=${recId}`, { headers });
+
+        if (res.status === 401) {
+            PocketApp.showToast("Please log in to view this saved plan.", "error");
+            setTimeout(() => window.location.href = "/login", 1200);
+            return;
+        }
+
+        if (!res.ok) {
+            throw new Error("Could not find requested recommendation record.");
+        }
+
+        const data = await res.json();
+        renderDetails(data);
+    } catch (err) {
+        document.getElementById("det-loading").innerHTML = `
+            <p style="color:var(--danger); font-weight:600;">${err.message}</p>
+            <a href="/history-page" class="btn btn-secondary btn-sm" style="margin-top:12px;">Return to History</a>
+        `;
+    }
+});
+
+let currentLoadedDetails = null;
+
+function renderDetails(data) {
+    currentLoadedDetails = data;
+    document.getElementById("det-loading").style.display = "none";
+    document.getElementById("det-content").style.display = "block";
+
+    document.getElementById("det-title").textContent = data.title;
+    document.getElementById("det-badge").textContent = data.category.toUpperCase();
+    document.getElementById("det-mode").textContent = data.is_sample_data ? "Sample Heuristic" : "AI Live Curated";
+    document.getElementById("det-mode").className = `badge ${data.is_sample_data ? 'badge-warning' : 'badge-success'}`;
+
+    const dateStr = new Date(data.created_at).toLocaleString();
+    document.getElementById("det-date").textContent = `Created: ${dateStr}`;
+
+    document.getElementById("det-budget").textContent = `$${data.budget.toFixed(2)}`;
+    document.getElementById("det-spent").textContent = `$${data.total_estimated_cost.toFixed(2)}`;
+    document.getElementById("det-remaining").textContent = `$${data.remaining_budget.toFixed(2)}`;
+
+    const details = data.details || {};
+    const items = details.items || [];
+
+    const itemsContainer = document.getElementById("det-items-list");
+    itemsContainer.innerHTML = "";
+    items.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "item-card";
+        card.innerHTML = `
+            <div class="item-info">
+                <span class="badge badge-info" style="margin-bottom:6px;">${item.category}</span>
+                <h4>${item.name}</h4>
+                <p>${item.description}</p>
+                <small style="color:var(--muted);">Qty: ${item.quantity} | Link Type: <em>${item.link_type}</em></small>
+            </div>
+            <div class="item-price">
+                <div class="price-tag">$${item.estimated_price.toFixed(2)}</div>
+                <a href="${item.vendor_link}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="margin-top:8px;">View Item &rarr;</a>
+            </div>
+        `;
+        itemsContainer.appendChild(card);
+    });
+
+    // Extras
+    const extras = document.getElementById("det-extras");
+    let extrasHtml = "";
+
+    if (details.design_tips && details.design_tips.length > 0) {
+        extrasHtml += `<h4>🎨 Design Tips</h4><ul style="margin-left:20px; margin-top:8px; line-height:1.7;">`;
+        details.design_tips.forEach(t => extrasHtml += `<li>${t}</li>`);
+        extrasHtml += `</ul>`;
+    }
+
+    if (details.checklist && details.checklist.length > 0) {
+        extrasHtml += `<h4>📋 Preparation Checklist</h4><ul style="margin-left:20px; margin-top:8px; line-height:1.7;">`;
+        details.checklist.forEach(c => extrasHtml += `<li>${c}</li>`);
+        extrasHtml += `</ul>`;
+    }
+
+    if (details.styling_advice) {
+        extrasHtml += `<h4>💎 Styling Advice</h4><p style="margin-top:8px; line-height:1.7;">${details.styling_advice}</p>`;
+    }
+
+    if (extrasHtml) {
+        extras.innerHTML = extrasHtml;
+        extras.style.display = "block";
+    }
+
+    // JSON Export
+    document.getElementById("btn-export-json").onclick = () => {
+        const blob = new Blob([JSON.stringify(currentLoadedDetails, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `pocketsmart-plan-${data.id}.json`;
+        a.click();
+    };
+}
+</script>
+{% endblock %}
+

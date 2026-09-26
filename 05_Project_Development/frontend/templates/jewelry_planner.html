@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Jewelry & Vision Planner — PocketSmart AI{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 40px 20px 80px;">
+    <div style="margin-bottom: 30px;">
+        <span class="badge badge-info">Jewelry & Vision Module</span>
+        <h1 style="font-size: 2.2rem; font-weight: 800; margin-top: 8px;">Jewelry & Wardrobe Planner</h1>
+        <p style="color: var(--muted); font-size: 1.05rem;">Match jewelry seamlessly to your outfit using Google Gemini multimodal vision within your exact spending budget.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;">
+        <!-- Input Form -->
+        <div class="card">
+            <h3 class="card-title" style="margin-bottom: 16px;">Styling Parameters</h3>
+            <form id="jewelry-planner-form">
+                <div class="form-group">
+                    <label for="occasion">Event / Occasion</label>
+                    <input type="text" id="occasion" name="occasion" class="form-control" placeholder="e.g. Evening Gala, Garden Wedding, Job Interview" value="Evening Gala" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="budget">Total Jewelry Budget ($ USD)</label>
+                    <input type="number" id="budget" name="budget" class="form-control" placeholder="e.g. 450.00" min="20" step="10" value="450" required>
+                    <div class="input-help">The AI curates a complete ensemble (earrings, necklace, cuff, rings) within this budget.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="style_preference">Preferred Aesthetic & Tone</label>
+                    <input type="text" id="style_preference" name="style_preference" class="form-control" placeholder="e.g. Warm 18k Gold & Emerald, Minimalist Silver, Royal Vintage" value="Warm 18k Gold & Emerald" required>
+                </div>
+
+                <!-- Multimodal Outfit Upload Zone -->
+                <div class="form-group">
+                    <label>Optional: Upload Outfit Photo (Gemini Vision)</label>
+                    <div id="upload-zone" class="upload-zone">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">📸</div>
+                        <p style="font-size: 0.95rem; font-weight: 600; color: var(--slate); margin-bottom: 4px;">Drag & Drop your outfit photo here</p>
+                        <p style="font-size: 0.8rem; color: var(--muted);">or click to browse from your device (JPG, PNG, WEBP)</p>
+                        <input type="file" id="outfit_image" name="image" accept="image/png, image/jpeg, image/webp" style="display:none;">
+                    </div>
+                    <div id="preview-container" class="preview-container">
+                        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:6px;">Uploaded Outfit Preview:</p>
+                        <img id="preview-image" class="preview-image" alt="Outfit Preview">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">
+                    💎 Analyze Outfit & Curate Jewelry
+                </button>
+            </form>
+        </div>
+
+        <!-- Right Side: Info Card -->
+        <div class="card" style="background: #ffffff;">
+            <h3 class="card-title">Multimodal Styling Intelligence</h3>
+            <p class="card-desc">When you provide an outfit photo, PocketSmart AI leverages Gemini's Vision capabilities to extract key sartorial attributes:</p>
+            <ul style="margin-left: 20px; font-size: 0.92rem; color: var(--slate); line-height: 1.8;">
+                <li><strong>Color Undertone Detection:</strong> Distinguishes warm vs. cool undertones to recommend between yellow gold, rose gold, platinum, or sterling silver.</li>
+                <li><strong>Neckline Geometry:</strong> Correlates collars, sweetheart necklines, or crewcuts with the proper necklace length (choker, princess, or collarbone pendant).</li>
+                <li><strong>Proportional Harmony:</strong> Avoids over-accessorizing by balancing focal statement pieces (e.g. chandelier earrings) with subtle rings or cuffs.</li>
+            </ul>
+            <div style="margin-top: 24px; padding: 16px; background: var(--primary-light); border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--primary-hover);">
+                ✨ <strong>Multimodal & Text Dual Mode:</strong> If no outfit photo is attached, the engine curates a gorgeous ensemble based on your occasion and style preference!
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-spinner" class="spinner-container">
+        <div class="spinner"></div>
+        <h3 style="font-size: 1.15rem; color: var(--slate);">Examining fabric palettes and styling with Gemini Vision...</h3>
+        <p style="font-size: 0.9rem; color: var(--muted);">Harmonizing gemstones and metals to match your budget ceiling...</p>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results-container" style="display: none; margin-top: 40px;">
+        <div class="result-header">
+            <div>
+                <span id="res-badge" class="badge badge-success" style="margin-bottom: 8px;">AI Vision Curated</span>
+                <h2 id="res-title" style="font-size: 1.6rem; color: white;">Gold & Emerald Ensemble</h2>
+            </div>
+            <div style="display: flex; gap: 24px;">
+                <div class="result-stat">
+                    <span class="label">Total Budget</span>
+                    <span id="res-budget" class="value">$450.00</span>
+                </div>
+                <div class="result-stat">
+                    <span class="label">Estimated Total</span>
+                    <span id="res-spent" class="value">$425.00</span>
+                </div>
+                <div class="result-stat">
+                    <span class="label">Surplus</span>
+                    <span id="res-remaining" class="value savings">$25.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vision Insights Box -->
+        <div id="res-vision-box" class="card" style="margin-bottom: 24px; border-left: 4px solid var(--accent); display:none;">
+            <h4 style="font-size: 1.15rem; margin-bottom: 12px; color: var(--dark);">👁️ Multimodal Vision Insights</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; font-size: 0.92rem;">
+                <div>
+                    <strong>Detected Palette:</strong><br>
+                    <span id="res-colors" style="color:var(--slate);">Deep Forest Emerald, Warm undertones</span>
+                </div>
+                <div>
+                    <strong>Neckline Geometry:</strong><br>
+                    <span id="res-neckline" style="color:var(--slate);">Sweetheart / Off-Shoulder</span>
+                </div>
+                <div>
+                    <strong>Aesthetic Profile:</strong><br>
+                    <span id="res-aesthetic" style="color:var(--slate);">Formal Evening Black-Tie</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended Metal -->
+        <div class="card" style="margin-bottom: 24px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <span style="font-size:0.85rem; text-transform:uppercase; color:var(--muted); font-weight:700;">Recommended Metal Tone</span>
+                <h3 id="res-metal" style="font-size:1.3rem; color:var(--primary); margin-top:2px;">18K Yellow Gold Vermeil</h3>
+            </div>
+            <span class="badge badge-info">Color Theory Verified</span>
+        </div>
+
+        <h3 style="font-size: 1.3rem; margin-bottom: 16px; color: var(--dark);">Curated Jewelry Pieces</h3>
+        <div id="res-items-list">
+            <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Styling Advice -->
+        <div class="card" style="margin-top: 24px; border-left: 4px solid var(--primary);">
+            <h4 style="font-size: 1.1rem; margin-bottom: 8px; color: var(--dark);">💎 Stylist Commentary</h4>
+            <p id="res-advice" style="font-size: 0.95rem; color: var(--slate); line-height: 1.7;"></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/jewelry_planner.js"></script>
+{% endblock %}
+

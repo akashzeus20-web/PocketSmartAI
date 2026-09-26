@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Party & Event Planner — PocketSmart AI{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 40px 20px 80px;">
+    <div style="margin-bottom: 30px;">
+        <span class="badge badge-info">Party & Event Module</span>
+        <h1 style="font-size: 2.2rem; font-weight: 800; margin-top: 8px;">Party & Event Budget Planner</h1>
+        <p style="color: var(--muted); font-size: 1.05rem;">Host memorable gatherings with automated budget splitting across catering, venue, decor, and entertainment.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;">
+        <!-- Input Form -->
+        <div class="card">
+            <h3 class="card-title" style="margin-bottom: 16px;">Event Details</h3>
+            <form id="party-planner-form">
+                <div class="form-group">
+                    <label for="occasion">Occasion / Celebration Type</label>
+                    <input type="text" id="occasion" name="occasion" class="form-control" placeholder="e.g. 30th Birthday Bash, Cocktail Night, Graduation" value="30th Birthday Bash" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="budget">Total Event Budget ($ USD)</label>
+                    <input type="number" id="budget" name="budget" class="form-control" placeholder="e.g. 1500.00" min="50" step="25" value="1500" required>
+                    <div class="input-help">The engine calculates a per-guest viability ratio automatically.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="guest_count">Expected Guest Headcount</label>
+                    <input type="number" id="guest_count" name="guest_count" class="form-control" placeholder="e.g. 25" min="1" max="500" value="25" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="venue_type">Venue Setting</label>
+                    <select id="venue_type" name="venue_type" class="form-control" required>
+                        <option value="Home / Backyard" selected>At Home / Private Backyard</option>
+                        <option value="Rented Community Hall">Rented Community Hall</option>
+                        <option value="Outdoor Park Pavilion">Outdoor Park Pavilion</option>
+                        <option value="Rooftop / Private Dining">Rooftop / Private Dining Space</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">
+                    🎉 Compute Smart Event Plan
+                </button>
+            </form>
+        </div>
+
+        <!-- Right Side: Info Card -->
+        <div class="card" style="background: #ffffff;">
+            <h3 class="card-title">How Our Event Math Works</h3>
+            <p class="card-desc">Organizing an event requires balancing multiple cost buckets so you never run out of food, seating, or ambiance:</p>
+            <ul style="margin-left: 20px; font-size: 0.92rem; color: var(--slate); line-height: 1.8;">
+                <li><strong>Catering & Beverages (~45%):</strong> Quality appetizers, main courses, desserts, and drink stations.</li>
+                <li><strong>Venue & Rentals (~20%):</strong> Seating, folding tables, linens, and space rental fees.</li>
+                <li><strong>Decor & Ambiance (~20%):</strong> Cohesive themed backdrops, ambient lighting, and table runners.</li>
+                <li><strong>Entertainment & Favors (~15%):</strong> Sound system, interactive games, and guest keepsakes.</li>
+            </ul>
+            <div style="margin-top: 24px; padding: 16px; background: #ecfdf5; border-radius: var(--radius-sm); font-size: 0.85rem; color: #065f46;">
+                ✨ <strong>Zero Overrun:</strong> PocketSmart AI checks <code>(Total Estimated Cost &le; Total Budget)</code> and generates a per-head metric ($/guest) for clear planning.
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-spinner" class="spinner-container">
+        <div class="spinner"></div>
+        <h3 style="font-size: 1.15rem; color: var(--slate);">Calculating event allocations with Gemini...</h3>
+        <p style="font-size: 0.9rem; color: var(--muted);">Structuring catering packages and checklists for your guest count...</p>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results-container" style="display: none; margin-top: 40px;">
+        <div class="result-header">
+            <div>
+                <span id="res-badge" class="badge badge-success" style="margin-bottom: 8px;">AI Live Curated</span>
+                <h2 id="res-title" style="font-size: 1.6rem; color: white;">30th Birthday Bash Plan</h2>
+            </div>
+            <div style="display: flex; gap: 24px;">
+                <div class="result-stat">
+                    <span class="label">Total Budget</span>
+                    <span id="res-budget" class="value">$1,500.00</span>
+                </div>
+                <div class="result-stat">
+                    <span class="label">Per Guest</span>
+                    <span id="res-perhead" class="value" style="color:#60a5fa;">$60.00</span>
+                </div>
+                <div class="result-stat">
+                    <span class="label">Estimated Total</span>
+                    <span id="res-spent" class="value">$1,420.00</span>
+                </div>
+                <div class="result-stat">
+                    <span class="label">Surplus</span>
+                    <span id="res-remaining" class="value savings">$80.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget Allocation Breakdown -->
+        <div class="card" style="margin-bottom: 24px;">
+            <h4 style="font-size: 1.15rem; margin-bottom: 16px; color: var(--dark);">📊 Proportional Budget Allocation</h4>
+            <div id="res-allocations">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+
+        <h3 style="font-size: 1.3rem; margin-bottom: 16px; color: var(--dark);">Itemized Event Purchases & Rentals</h3>
+        <div id="res-items-list">
+            <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Prep Checklist -->
+        <div class="card" style="margin-top: 24px; border-left: 4px solid var(--secondary);">
+            <h4 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--dark);">📋 Event Execution & Prep Checklist</h4>
+            <ul id="res-checklist" style="margin-left: 20px; font-size: 0.92rem; color: var(--slate); line-height: 1.7;">
+                <!-- Rendered dynamically -->
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/party_planner.js"></script>
+{% endblock %}
+

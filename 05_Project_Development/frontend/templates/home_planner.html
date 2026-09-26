@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Home Interior Planner — PocketSmart AI{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 40px 20px 80px;">
+    <div style="margin-bottom: 30px;">
+        <span class="badge badge-info">Home Interior Module</span>
+        <h1 style="font-size: 2.2rem; font-weight: 800; margin-top: 8px;">Home Interior Budget Planner</h1>
+        <p style="color: var(--muted); font-size: 1.05rem;">Curate stylish furniture, atmospheric lighting, and decor without exceeding your budget ceiling.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;">
+        <!-- Input Form -->
+        <div class="card">
+            <h3 class="card-title" style="margin-bottom: 16px;">Planning Parameters</h3>
+            <form id="home-planner-form">
+                <div class="form-group">
+                    <label for="budget">Total Budget ($ USD)</label>
+                    <input type="number" id="budget" name="budget" class="form-control" placeholder="e.g. 2000.00" min="50" step="10" value="2000" required>
+                    <div class="input-help">The AI will strictly cap your recommendations within this amount.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="room_type">Target Room Type</label>
+                    <select id="room_type" name="room_type" class="form-control" required>
+                        <option value="Living Room" selected>Living Room</option>
+                        <option value="Primary Bedroom">Primary Bedroom</option>
+                        <option value="Home Office / Studio">Home Office / Studio</option>
+                        <option value="Dining Room">Dining Room</option>
+                        <option value="Balcony / Outdoor Patio">Balcony / Outdoor Patio</option>
+                        <option value="Guest Bedroom">Guest Bedroom</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="style">Aesthetic Style</label>
+                    <select id="style" name="style" class="form-control" required>
+                        <option value="Scandinavian Minimalist" selected>Scandinavian Minimalist (Light wood, neutral tones)</option>
+                        <option value="Mid-Century Modern">Mid-Century Modern (Retro warm walnut & tapered legs)</option>
+                        <option value="Industrial Loft">Industrial Loft (Exposed metal, reclaimed wood, leather)</option>
+                        <option value="Bohemian Chic">Bohemian Chic (Warm textiles, macrame & greenery)</option>
+                        <option value="Modern Japandi">Modern Japandi (Muted elegance & organic bamboo)</option>
+                        <option value="Contemporary Luxe">Contemporary Luxe (Marble accents & brass finishes)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Priority Items to Include</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.9rem; color: var(--slate); margin-top: 6px;">
+                        <label><input type="checkbox" name="required_items" value="Sofa / Seating" checked> Sofa / Seating</label>
+                        <label><input type="checkbox" name="required_items" value="Coffee Table" checked> Coffee Table</label>
+                        <label><input type="checkbox" name="required_items" value="Floor / Task Lighting" checked> Floor Lighting</label>
+                        <label><input type="checkbox" name="required_items" value="Area Rug" checked> Area Rug</label>
+                        <label><input type="checkbox" name="required_items" value="Wall Art & Mirrors"> Wall Art & Mirrors</label>
+                        <label><input type="checkbox" name="required_items" value="Storage / Bookshelf"> Storage / Bookshelf</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">
+                    ✨ Generate Smart Interior Plan
+                </button>
+            </form>
+        </div>
+
+        <!-- Right Side: Instructions & Empty State -->
+        <div id="side-info-card" class="card" style="background: #ffffff;">
+            <h3 class="card-title">How PocketSmart AI Works</h3>
+            <p class="card-desc">Unlike generic search engines, our engine enforces mathematical allocation rules before presenting purchase suggestions:</p>
+            <ol style="margin-left: 20px; font-size: 0.92rem; color: var(--slate); line-height: 1.8;">
+                <li><strong>Dynamic Allocation:</strong> The budget is partitioned into 60% Key Furniture, 15% Ambient Lighting, and 25% Decor & Rugs.</li>
+                <li><strong>Gemini 1.5 Synthesis:</strong> Gemini matches pieces according to your room type and design aesthetic.</li>
+                <li><strong>Audit & Zero-Overrun:</strong> Every line item is verified. Total expenditures will never silently exceed your budget.</li>
+                <li><strong>Transparent Links:</strong> Vendor links are clearly labeled as realistic sample listings.</li>
+            </ol>
+            <div style="margin-top: 24px; padding: 16px; background: var(--primary-light); border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--primary-hover);">
+                💡 <strong>Tip:</strong> If you are logged in, your generated plans will be automatically saved to your history for future reference.
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-spinner" class="spinner-container">
+        <div class="spinner"></div>
+        <h3 style="font-size: 1.15rem; color: var(--slate);">Designing your room layout with Gemini...</h3>
+        <p style="font-size: 0.9rem; color: var(--muted);">Auditing prices and balancing your selected furniture items...</p>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results-container" style="display: none; margin-top: 40px;">
+        <div class="result-header">
+            <div>
+                <span id="res-badge" class="badge badge-success" style="margin-bottom: 8px;">AI Curated</span>
+                <h2 id="res-title" style="font-size: 1.6rem; color: white;">Scandinavian Living Room Plan</h2>
+            </div>
+            <div style="display: flex; gap: 24px;">
+                <div class="result-stat">
+                    <span class="label">Total Budget</span>
+                    <span id="res-budget" class="value">$2,000.00</span>
+                </div>
+                <div class="result-stat">
+                    <span class="label">Estimated Total</span>
+                    <span id="res-spent" class="value">$1,890.00</span>
+                </div>
+                <div class="result-stat">
+                    <span class="label">Surplus / Savings</span>
+                    <span id="res-remaining" class="value savings">$110.00</span>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="font-size: 1.3rem; margin-bottom: 16px; color: var(--dark);">Curated Item Checklist</h3>
+        <div id="res-items-list">
+            <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Design Advice -->
+        <div class="card" style="margin-top: 24px; border-left: 4px solid var(--primary);">
+            <h4 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--dark);">🎨 Professional Design & Layout Tips</h4>
+            <ul id="res-tips-list" style="margin-left: 20px; font-size: 0.92rem; color: var(--slate); line-height: 1.7;">
+                <!-- Rendered dynamically -->
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/home_planner.js"></script>
+{% endblock %}
+

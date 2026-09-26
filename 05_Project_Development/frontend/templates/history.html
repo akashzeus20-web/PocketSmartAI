@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Recommendation History — PocketSmart AI{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 40px 20px 80px;">
+    <div style="margin-bottom: 30px;">
+        <span class="badge badge-info">Personal Archives</span>
+        <h1 style="font-size: 2.2rem; font-weight: 800; margin-top: 8px;">My Recommendation History</h1>
+        <p style="color: var(--muted); font-size: 1.05rem;">Review, inspect, and export your previously curated budget roadmaps.</p>
+    </div>
+
+    <!-- Login Prompt if Not Authenticated -->
+    <div id="login-prompt" class="card" style="display: none; text-align: center; padding: 40px;">
+        <div style="font-size: 2.5rem; margin-bottom: 12px;">🔒</div>
+        <h3 style="font-size: 1.4rem; margin-bottom: 8px;">Authentication Required</h3>
+        <p style="color: var(--muted); max-width: 480px; margin: 0 auto 20px;">Please log in to your account to view and manage your saved recommendation history.</p>
+        <a href="/login" class="btn btn-primary">Log In to Your Account</a>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="card" style="display: none; text-align: center; padding: 40px;">
+        <div style="font-size: 2.5rem; margin-bottom: 12px;">📂</div>
+        <h3 style="font-size: 1.4rem; margin-bottom: 8px;">No Saved Recommendations Yet</h3>
+        <p style="color: var(--muted); max-width: 480px; margin: 0 auto 20px;">You haven't generated any plans while logged in. Try our planners below to start building your budget archives!</p>
+        <div style="display:flex; justify-content:center; gap:12px;">
+            <a href="/home-planner" class="btn btn-secondary btn-sm">Home Planner</a>
+            <a href="/party-planner" class="btn btn-secondary btn-sm">Party Planner</a>
+            <a href="/jewelry-planner" class="btn btn-secondary btn-sm">Jewelry Planner</a>
+        </div>
+    </div>
+
+    <!-- Dynamic History Items -->
+    <div id="history-container">
+        <!-- Rendered dynamically -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/history.js"></script>
+{% endblock %}
+

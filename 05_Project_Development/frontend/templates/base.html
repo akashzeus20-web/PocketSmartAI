@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PocketSmart AI — Intelligent Context-Aware Budget & Purchase Planning{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Global Navigation -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="brand">
+                <span>✨ PocketSmart AI</span>
+                <span class="brand-badge">Gemini Powered</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="/" class="{% if active_tab == 'home' %}active{% endif %}">Overview</a></li>
+                <li><a href="/home-planner" class="{% if active_tab == 'home-planner' %}active{% endif %}">Home Interior</a></li>
+                <li><a href="/party-planner" class="{% if active_tab == 'party-planner' %}active{% endif %}">Party Planner</a></li>
+                <li><a href="/jewelry-planner" class="{% if active_tab == 'jewelry-planner' %}active{% endif %}">Jewelry & Vision</a></li>
+                <li><a href="/history-page" class="{% if active_tab == 'history' %}active{% endif %}">History</a></li>
+            </ul>
+            <div class="nav-auth" id="nav-auth-area">
+                {% if user %}
+                    <span style="font-size:0.9rem; font-weight:600; color:var(--slate);">Hi, {{ user.username }}</span>
+                    <a href="/history-page" class="btn btn-secondary btn-sm">My History</a>
+                    <button onclick="PocketApp.logout()" class="btn btn-secondary btn-sm">Log Out</button>
+                {% else %}
+                    <a href="/login" class="btn btn-secondary btn-sm">Log In</a>
+                    <a href="/register" class="btn btn-primary btn-sm">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Slot -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Global Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 PocketSmart AI — Context-Aware Generative Budgeting Platform. All product links & estimated prices are algorithmically curated market estimates.</p>
+        </div>
+    </footer>
+
+    <!-- Global Scripts -->
+    <script src="/static/js/app.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+
